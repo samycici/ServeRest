@@ -12,8 +12,25 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+    - name: Wait for Lint to succeed
+      uses: fountainhead/action-wait-for-check@v1.0.0
+      id: wait-for-lint
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        checkName: lint
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
+        timeoutSeconds: 50
+    - name: Wait for CodeQL to succeed
+      uses: fountainhead/action-wait-for-check@v1.0.0
+      id: wait-for-codeql
+      with:
+        token: ${{ secrets.GITHUB_TOKEN }}
+        checkName: Analyse
+        ref: ${{ github.event.pull_request.head.sha || github.sha }}
+        timeoutSeconds: 3000
     - name: Project checkout
       uses: actions/checkout@v2
+      if: steps.wait-for-codeql.outputs.conclusion == 'success' && steps.wait-for-lint.outputs.conclusion == 'failure'
     - uses: gaurav-nelson/github-action-markdown-link-check@v1
       with:
         config-file: '.github/mlc_config.json'

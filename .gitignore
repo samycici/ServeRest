@@ -1,6 +1,6 @@
 .nyc_output/
 node_modules/
-reports/
+reports/teste
 
 coverage.lcov
 serverest.apib
